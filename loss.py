@@ -53,7 +53,7 @@ class BerHuLoss(nn.Module):
 
 class RMSELoss(nn.Module):
     def __init__(self):
-        super(BerHuLoss, self).__init__()
+        super(RMSELoss, self).__init__()
 
     def forward(self, pred, target):
         return torch.sqrt(F.mse_loss(pred, target))

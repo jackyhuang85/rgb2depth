@@ -5,16 +5,13 @@ import importlib
 from skimage.transform import resize
 
 
-def show_image_depth(image, depth, block=True):
-    fig = plt.figure()
-    ax1 = fig.add_subplot(1, 2, 1)
-    ax1.imshow(image)
-    # ax1.imshow(image, cmap='viridis', vmin=0, vmax=80)
-    plt.title('Image')
-    ax2 = fig.add_subplot(1, 2, 2)
-    ax2.imshow(depth, cmap='viridis', vmin=0, vmax=10)
-    plt.title('Ground truth depth')
-    return fig
+def dump(image, depth, depth_gt, error_map=None, prefix='dump', n=0):
+    plt.imsave('./_dump_files/%s_image_%d.png' % (prefix, n), image)
+    plt.imsave('./_dump_files/%s_depth_%d.png' % (prefix, n), depth, cmap='viridis', vmin=0, vmax=10)
+    plt.imsave('./_dump_files/%s_depth_gt_%d.png' % (prefix, n), depth_gt, cmap='viridis', vmin=0, vmax=10)
+    if error_map != None:
+        plt.imsave('./_dump_files/%s_error_map_%d.png' % (prefix, n), error_map, cmap='viridis', vmin=0, vmax=2)
+
 
 
 def resize_image_depth(image, pred, gt):
@@ -42,7 +39,7 @@ def make_depth_fig(img, depth_gt, depth_pred):
     ax3.imshow(depth_pred, cmap='viridis',
                vmin=0, vmax=10)
     plt.title('Predict Depth')
-    return fig
+    return fig, depth_pred
 
 
 def adjust_lr(optimizer, epoch, lr, reduce=0.2, step=5):
@@ -51,12 +48,10 @@ def adjust_lr(optimizer, epoch, lr, reduce=0.2, step=5):
         param['lr'] = lr
 
 
-def create_loss(loss):
-    loss_name = loss
+def create_loss(loss_name):
     loss_lib = importlib.import_module('loss')
 
     loss = None
-
     for name, cls in loss_lib.__dict__.items():
         if name.lower() == (loss_name+'loss').lower() and issubclass(cls, nn.Module):
             loss = cls
@@ -75,7 +70,10 @@ def make_error_map(img, depth_gt, depth_pred):
     ax1.imshow(img)
     plt.title('Image')
     ax2 = fig.add_subplot(1, 2, 2)
-    ax2.imshow((depth_pred-depth_gt).abs(), vmin=0, vmax=2)
+
+    error_map = (depth_pred-depth_gt).abs()
+
+    ax2.imshow(error_map, vmin=0, vmax=2)
     plt.title('Error map')
-    return fig
+    return fig, error_map
 

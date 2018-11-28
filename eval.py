@@ -3,7 +3,7 @@ import torch.utils.data as data
 from torchvision import transforms
 from NYUDepth import NYUDepth
 from metrics import mre, delta
-
+from utils import make_error_map, dump
 
 def eval(test_loader, model, device):
     mse = torch.nn.MSELoss()
@@ -26,6 +26,17 @@ def eval(test_loader, model, device):
             delta1_loss += delta(output, depth, 1) * test_loader.batch_size
             delta2_loss += delta(output, depth, 2) * test_loader.batch_size
             delta3_loss += delta(output, depth, 3) * test_loader.batch_size
+
+            image, depth_gt, depth_pred = resize_image_depth(
+                img, depth, output)
+
+            _, error_map = make_error_map(image, depth_gt.T, depth_pred.T)
+            dump(image=image,
+                 depth=depth_pred.T,
+                 depth_gt=depth_gt.T,
+                 error_map=error_map,
+                 prefix='eval',
+                 n=i)
 
         N = len(test_loader) * test_loader.batch_size
         rmse_loss = torch.sqrt(rmse_loss/N)

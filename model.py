@@ -69,7 +69,7 @@ class ResNetDepth(nn.Module):
         self.layer3 = pretrained._modules['layer3']
         self.layer4 = pretrained._modules['layer4']
 
-        # del pretrained
+        del pretrained
 
         # up sampling
         self.conv2 = nn.Conv2d(2048, 1024, 1, bias=False)
@@ -151,7 +151,6 @@ class ResNetDepth(nn.Module):
         # import pdb
         # pdb.set_trace()
         x = self.conv3(x)
-        x = self.relu(x)
 
         x = F.interpolate(x, (304, 228), mode='bilinear',
                           align_corners=True)
