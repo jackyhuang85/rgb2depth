@@ -20,6 +20,8 @@ def train(train_loader, model, optimizer, criterion, device, writer, epoch):
         depth = depth.unsqueeze(1)
         output = model(img)
 
+        output[depth == 0] = 0
+
         optimizer.zero_grad()
         loss = criterion(depth, output)
         total_loss += loss

@@ -20,6 +20,11 @@ def eval(test_loader, model, device):
             img, depth = img.to(device).float(), depth.to(device).float()
             depth = depth.unsqueeze(1)
             output = model(img)
+
+            valid_mask = depth > 0
+            depth = depth[valid_mask]
+            output = output[valid_mask]
+
             rmse_loss += mse(output, depth) * test_loader.batch_size
             mae_loss += mae(output, depth) * test_loader.batch_size
             mre_loss += mre(output, depth) * test_loader.batch_size
